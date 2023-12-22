@@ -309,7 +309,7 @@ def get_alpha_beta(df, port_col, bench_col, rf, m):
     return alpha, beta
 
 
-def evaluate(month_start, month_end, factorList):
+def evaluate(month_start, month_end, factorList, path_tag = ''):
     """
     指标回测
     Args:
@@ -339,7 +339,7 @@ def evaluate(month_start, month_end, factorList):
         ## 分组回测
         rets, sells, buys, factors = strategy(month_start[month_start[factor_name].notnull()], month_end[month_end[factor_name].notnull()], factor_name, 'Trddt', 'Dsmvosd')
         rets_pivot = pd.concat(rets).pivot(index = 'Trddt', columns = 'Group', values = 'strategy_ret')
-        path = "{}分层回溯.jpg".format(factor_name)
+        path = path_tag + "{}分层回溯.jpg".format(factor_name)
         strategy_GroupTest(rets_pivot, path)
 
         ## 多空组合
@@ -350,7 +350,7 @@ def evaluate(month_start, month_end, factorList):
 
         ## 计算IC……
         ic_df = pd.merge(month_start[['Stkcd', 'Trddt','Year', 'Month', 'ret']], month_end_shift[['Stkcd', 'Year', 'Month', factor_name]])
-
+        ic_df[factor_name] = - ic_df[factor_name]
         ic_series = cal_factor_ic(ic_df[ic_df[factor_name].notnull()], 'Trddt', [factor_name], 'pearson')
         ic_series_rank = cal_factor_ic(ic_df[ic_df[factor_name].notnull()], 'Trddt', [factor_name], 'spearman')
         ic_mean = np.nanmean(ic_series)
@@ -480,7 +480,7 @@ data['Momentum_Ovn_120'], data['Jump_120'] = Factor_Jump(data, 120)
 df = data.copy()
 df = df[df['Trddt'] == dt.date(2018, 6, 29)]
 plt.hist(df['Momentum_Ovn_10'],bins = 51, edgecolor = 'white', facecolor = 'red')
-#plt.savefig("图表4:2018年6月29日隔夜涨跌幅水平统计结果", dpi = 1000)
+# plt.savefig("图表4：2018年6月29日隔夜涨跌幅水平统计结果", dpi = 1000)
 plt.show()
 
 print("数据量:{}".format(len(df[df['Momentum_Ovn_10'].notnull()]['Momentum_Ovn_10'])))
@@ -500,7 +500,7 @@ print("峰度: %.4f" % (stats.kurtosis(df['Momentum_Ovn_10'], nan_policy = 'omit
 df = get_MonthData(data, 'Trddt', type = 'last')
 df = df[(df['Trddt'] >= dt.date(2006, 1, 1)) & (df['Trddt'] <= dt.date(2018, 6, 30))]
 plt.hist(df['Momentum_Ovn_10'], bins = 600, edgecolor = 'white', facecolor = 'red')
-#plt.savefig("图表5:2016年初-2018年中隔夜涨跌幅水平统计结果.jpg", dpi = 1000)
+# plt.savefig("图表5：2016年初-2018年中隔夜涨跌幅水平统计结果.jpg", dpi = 1000)
 plt.xlim(-0.1, 0.1)
 plt.show()
 
@@ -520,7 +520,7 @@ print("峰度: %.4f" % (stats.kurtosis(df['Momentum_Ovn_10'], nan_policy = 'omit
 df = data.copy()
 df = df[df['Trddt'] == dt.date(2018, 6, 29)]
 plt.hist(df['Jump_10'],bins = 46, edgecolor = 'white', facecolor = 'red')
-#plt.savefig("图表7:2018年6月29日跳空因子统计结果.jpg", dpi = 1000)
+# plt.savefig("图表7：2018年6月29日跳空因子统计结果.jpg", dpi = 1000)
 plt.xlim(0, 0.08)
 plt.ylim(0, 600)
 plt.show()
@@ -544,7 +544,7 @@ df = df[(df['Trddt']>=dt.date(2006, 1,1)) & (df['Trddt'] <= dt.date(2018, 6, 30)
 plt.hist(df['Jump_10'], bins = 1000, edgecolor = 'white', facecolor = 'red')
 plt.xlim(0, 0.1)
 plt.ylim(0, 45000)
-#plt.savefig("图表8:2016年初-2018年中跳空因子统计结果.jpg", dpi = 1000)
+# plt.savefig("图表8：2016年初-2018年中跳空因子统计结果.jpg", dpi = 1000)
 plt.show()
 
 print("数据量:{}".format(len(df[df['Jump_10'].notnull()]['Jump_10'])))
@@ -599,7 +599,7 @@ plt.bar(x = np.arange(1, 11) - 0.05, height = Rets[1], facecolor = '#5A6133', wi
 plt.bar(x = np.arange(1, 11) + 0.2, height = Rets[2], facecolor = 'grey', width = 0.2, edgecolor = 'black')
 plt.xticks(np.arange(1, 11))  
 plt.legend(['Momentum_Ovn_10', 'Momentum_Ovn_60', 'Momentum_Ovn_120'])
-#plt.savefig("图表6:隔夜涨跌幅水平分组收益.jpg", dpi = 1000)
+# plt.savefig("图表6：隔夜涨跌幅水平分组收益.jpg", dpi = 1000)
 plt.show()
 
 """
@@ -624,7 +624,7 @@ ax2.bar(x = Factor_Jump10['Group'] + 1, height = Factor_Jump10['Jump_10'], width
 ax2.set_xticks(np.arange(1, 11))
 ax2.set_ylim(0, 0.02)
 ax1.scatter(np.arange(1, 11), Rets[0].apply(lambda x : x ** (12 / 150) - 1), color = 'red')
-#plt.savefig("图表9：10日跳空因子分组收益.jpg", dpi = 1000)
+plt.savefig("图表9：10日跳空因子分组收益.jpg", dpi = 1000)
 plt.show()
 
 """
@@ -656,7 +656,7 @@ month_start = month_start[(month_start['ret']>= np.nanquantile(month_start['ret'
     图表11-22
 """
 
-factorList = ['Jump_{}'.format(N) for N in [5, 10, 20, 40, 60, 120]]
+factorList = ['Adj_Jump_{}'.format(N) for N in [5, 10, 20, 40, 60, 120]]
 GroupTestRets, performance = evaluate(month_start, month_end, factorList)
 
 """
@@ -705,8 +705,8 @@ month_start['ret'] = month_start.groupby('Stkcd').apply(get_ChangeRatio, 'Adjprc
 month_start = month_start[(month_start['ret']>= np.nanquantile(month_start['ret'], 1 - 0.999)) & (month_start['ret']<= np.nanquantile(month_start['ret'], 0.999))]
 
 
-factorList = ['Jump_{}'.format(N) for N in [5, 10, 20, 40, 60, 120]]
-GroupTestRets, performance = evaluate(month_start, month_end, factorList)
+factorList = ['Adj_Jump_{}'.format(N) for N in [5, 10, 20, 40, 60, 120]]
+GroupTestRets, performance = evaluate(month_start, month_end, factorList, path_tag = "test_data")
 
 GroupTestRets
 
@@ -749,8 +749,8 @@ index300_month_start['ret'] = index300_month_start.groupby('Indexcd').apply(get_
 ## 计算raw_data的因子
 raw_data.sort_values(by = ['Trddt', 'Stkcd'], ignore_index = True, inplace = True)
 for N in [5, 10, 20, 40, 60, 120]:
-   _, raw_data['Adj_Jump_{}'.format(N)] = Factor_Jump(raw_data, N)
-   raw_data['Adj_Jump_{}'.format(N)] = - raw_data['Adj_Jump_{}'.format(N)]
+   _, raw_data['Jump_{}'.format(N)] = Factor_Jump(raw_data, N)
+   raw_data['Adj_Jump_{}'.format(N)] = - raw_data['Jump_{}'.format(N)]
 
 ## 获取月初、月末交易数据
 month_start = get_MonthData(raw_data, "Trddt", type = "first")
@@ -769,7 +769,7 @@ month_start = month_start[(month_start['ret']>= np.nanquantile(month_start['ret'
 ## 以沪深300为基准进行比较
 Rets = []
 for N in [5, 10, 20, 40, 60, 120]:
-    actor_name = 'Adj_Jump_{}'.format(N)
+    factor_name = 'Adj_Jump_{}'.format(N)
     raw_factor_name = 'Jump_{}'.format(N)
     rets, sells, buys, factors = strategy(month_start[month_start[factor_name].notnull()], month_end[month_end[factor_name].notnull()], factor_name, 'Trddt', 'Dsmvosd')
     rets_pivot = pd.concat(rets).pivot(index = 'Trddt', columns = 'Group', values = 'strategy_ret')
@@ -779,12 +779,12 @@ for i, N in enumerate([5, 10, 20, 40, 60, 120]):
     raw_factor_name = 'Jump_{}'.format(N)
     plt.plot(Rets[i].index, (Rets[i][9] + 1).cumprod(), label = raw_factor_name)
 plt.plot(index300_month_start['Trddt'], (1 + index300_month_start['ret']).cumprod(), label = '沪深300')
-plt.savefig("沪深300指数为基准评估隔夜跳空选股因子表现.jpg",dpi = 1000)
 plt.legend()
+plt.savefig("沪深300指数为基准评估隔夜跳空选股因子表现.jpg",dpi = 1000)
 plt.show()
 
 ## 计算信息比率
-por_bench = Rets[2][9].values - index300_month_start[index300_month_start['Trddt']>=dt.date(2005,8,1)]['ret'].values
+por_bench = Rets[2][9].values - index300_month_start[index300_month_start['Trddt']>=dt.date(2005,5,1)]['ret'].values
 annual_ret = get_annual_ret(por_bench, 12)
 annual_vol = get_annual_vol(por_bench, 12)
 IR =  annual_ret/ annual_vol
@@ -794,7 +794,7 @@ print("信息比率:%.2f" %(IR))
 ## 以沪深300为基准计算隔夜跳空选股因子的Alpha
 por = pd.DataFrame()
 por['por'] = Rets[2][9].values
-por['bench'] = index300_month_start[index300_month_start['Trddt']>=dt.date(2005,8,1)]['ret'].values
+por['bench'] = index300_month_start[index300_month_start['Trddt']>=dt.date(2005,5,1)]['ret'].values
 rf = 0.03
 alpha, beta = get_alpha_beta(por, 'por', 'bench', rf, 12)
 print("beta:%.2f" % beta)
@@ -839,12 +839,19 @@ index300_stkcd_start = index300_stkcd_start[(index300_stkcd_start['ret']>= np.na
 index300_stkcd_start = index300_stkcd_start.reset_index(drop = True)
 index300_stkcd_end = index300_stkcd_end.reset_index(drop = True)
 
+index300_ic = cal_factor_ic(index300_stkcd_start, 'Trddt', ['Jump_10'], 'pearson')
+plt.bar(index300_ic[index300_ic['Jump_10']>0].index, index300_ic[index300_ic['Jump_10']>0]['Jump_10'], color = 'red')
+plt.plot(index300_ic.index, [0] * len(index300_ic), color = 'black')
+plt.bar(index300_ic[index300_ic['Jump_10']<0].index, index300_ic[index300_ic['Jump_10']<0]['Jump_10'], color = 'grey')
+plt.savefig("图表35: 沪深 300 成分股 IC 序列.jpg", dpi = 1000)
+
+
 """
     沪深300成分股因子测试和IC评价
 """
 
-factorList = ['Jump_{}'.format(N) for N in [5, 10, 20, 40, 60, 120]]
-GroupTestRets, performance = evaluate(index300_stkcd_start, index300_stkcd_end, factorList)
+factorList = ['Adj_Jump_{}'.format(N) for N in [5, 10, 20, 40, 60, 120]]
+GroupTestRets, performance = evaluate(index300_stkcd_start, index300_stkcd_end, factorList, path_tag = "沪深300")
 
 GroupTestRets
 
@@ -882,12 +889,18 @@ index500_stkcd_start = index500_stkcd_start[(index500_stkcd_start['ret']>= np.na
 index500_stkcd_start = index500_stkcd_start.reset_index(drop = True)
 index500_stkcd_end = index500_stkcd_end.reset_index(drop = True)
 
+index500_ic = cal_factor_ic(index300_stkcd_start, 'Trddt', ['Jump_10'], 'pearson')
+plt.bar(index500_ic[index500_ic['Jump_10']>0].index, index500_ic[index500_ic['Jump_10']>0]['Jump_10'], color = 'red')
+plt.plot(index500_ic.index, [0] * len(index500_ic), color = 'black')
+plt.bar(index500_ic[index500_ic['Jump_10']<0].index, index500_ic[index500_ic['Jump_10']<0]['Jump_10'], color = 'grey')
+plt.savefig("图表36: 中证 500 成分股 IC 序列.jpg", dpi = 1000)
+
 """
     中证500成分股因子测试和IC评价
 """
 
-factorList = ['Jump_{}'.format(N) for N in [5, 10, 20, 40, 60, 120]]
-GroupTestRets, performance = evaluate(index500_stkcd_start, index500_stkcd_end, factorList)
+factorList = ['Adj_Jump_{}'.format(N) for N in [5, 10, 20, 40, 60, 120]]
+GroupTestRets, performance = evaluate(index500_stkcd_start, index500_stkcd_end, factorList, path_tag = "中证500")
 
 GroupTestRets
 
