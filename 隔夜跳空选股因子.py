@@ -24,7 +24,7 @@ from scipy import stats
 from tqdm import tqdm
 warnings.filterwarnings('ignore')
 import os
-os.chdir("/Users/luomingliang/Desktop/梁洛铭/研究生/UIBE/研一/Python与金融量化/金融量化第二次作业/隔夜跳空因子")
+os.chdir("～")
 
 def get_paths(path,*suffix):
     # 获取读取文件的路径
